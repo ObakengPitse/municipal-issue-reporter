@@ -75,13 +75,15 @@ namespace MunicipalIssueReporter.Forms
             // --- Service Request Status Button ---
             btnServiceStatus = new Button
             {
-                Text = "🔍 Service Request Status (Coming Soon)",
+                Text = "🔍 Service Request Status",
                 Dock = DockStyle.Fill,
                 Height = 50,
                 Font = new System.Drawing.Font("Segoe UI", 12F),
-                Enabled = false
+                Enabled = true
             };
+            btnServiceStatus.Click += BtnServiceStatus_Click;
             layout.Controls.Add(btnServiceStatus, 0, 3);
+
 
             // --- Exit Button ---
             btnExit = new Button
@@ -128,5 +130,21 @@ namespace MunicipalIssueReporter.Forms
                     "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void BtnServiceStatus_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var statusForm = new ServiceStatusForm();
+                statusForm.FormClosed += (s, args) => this.Show();
+                this.Hide();
+                statusForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open Service Status page.\n{ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 }

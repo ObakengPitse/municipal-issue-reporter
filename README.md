@@ -1,10 +1,10 @@
-# 🏙️ Municipal Issue Reporter System
+# Municipal Services Application — Service Request Status Module
 
 ## 📘 Overview
 The **Municipal Issue Reporter System** is a C# Windows Forms application designed to help community members:
 - Report municipal issues (e.g., road damage, sanitation concerns).
 - View **Local Events & Announcements**.
-- Check **Service Request Status** (Coming soon).
+- Check **Service Request Status**.
 
 It demonstrates the use of **data structures** such as stacks, queues, priority queues, hash tables, sorted dictionaries, and sets to efficiently manage event data and provide user recommendations.
 
@@ -20,30 +20,37 @@ Before running the application, ensure that the following software is installed:
 
 ---
 
-## 🧩 Project Structure
+## Project Structure
 ```
 MunicipalIssueReporter/
 │
 ├── Forms/
 │   ├── MainForm.cs
-│   ├── ReportIssueForm.cs
-│   └── LocalEventsForm.cs
+│   ├── ReportForm.cs
+│   ├── LocalEventsForm.cs
+│   └── ServiceStatusForm.cs
 │
 ├── Models/
+│   ├── Issue.cs
 │   └── EventItem.cs
 │
 ├── Services/
-│   └── EventService.cs
+│   ├── EventService.cs
+│   ├── EventRepository.cs
+│   ├── IssueService.cs
+│   ├── IssueRepository.cs
+│   
 │
 ├── Utils/
+│   ├── Trees.cs
+│   ├── MinHeap.cs
+│   ├── Graph.cs
 │   └── ErrorHandler.cs
 │
+├── issues.xml
 ├── Program.cs
-├── MunicipalIssueReporter.csproj
 └── README.md
 ```
-
----
 
 ## 🧱 Compilation Instructions
 
@@ -72,94 +79,243 @@ MunicipalIssueReporter/
 You will be greeted with the **Main Menu**, which includes:
 - **Report Issues** – Submit new municipal issues.  
 - **Local Events & Announcements** – View and search upcoming community events.  
-- **Service Request Status** – Track the progress of reported issues(Coming Soon!).
+- **Service Request Status** – Track the progress of reported issues.
 
 ### Navigation:
 - Use the main menu buttons to navigate between pages.
 - Each form includes a **Back to Main Menu** button for easy return.
 
----
+### Report Issues
+Fill in fields, attach files, submit. Issues saved to `issues.xml`.
 
-### 📅 Report Issues Page
-This section allows users to capture and submit issues.
+### Local Events & Announcements
+- View upcoming events sorted by date and priority  
+- Search events by **category** and **date range**  
+- View detailed event descriptions by double-clicking  
+- See **Recommended Events** based on viewed history  
+- Uses **SortedDictionary**, **HashSet**, and **Stack** for efficient event storage
 
-### Features:
-✅ Report issues 
-✅ Attach images and documents  
-✅ Dynamic progress bar 
+### Service Request Status
+- Track by ID
+- Show Priority Queue (**MinHeap**)
+- Graph Traversal (**BFS**)
+- Minimum Spanning Tree (**Prim**)
+- Rebuild Data Structures
+
+## Troubleshooting
+- If MST unavailable → graph disconnected or empty.
+- Delete issues.xml if load errors occur.
+
+## Future Enhancements
+- Visual graph rendering
+- Dijkstra routing
+- Red-Black Tree
+- Unit tests
 
 
-## 📅 Local Events & Announcements 
-This section allows users to view, search, and explore community events.
-
-### Features:
-✅ View upcoming events sorted by date and priority  
-✅ Search events by **category** and **date range**  
-✅ View detailed event descriptions by double-clicking  
-✅ See **Recommended Events** based on viewed history  
-✅ Uses **SortedDictionary**, **HashSet**, and **Stack** for efficient event storage
-
-### How It Works:
-1. **Event Data** is preloaded through `EventRepository.SeedSampleData()`.
-2. Events are stored and sorted using a **SortedDictionary<DateTime, EventItem>**.
-3. Each viewed event is recorded in a **Stack** for tracking user activity.
-4. Recommendations are generated based on past search and viewing patterns.
-
----
-
-## 🔧 Technical Implementation Details
-
-| Component | Description |
-|------------|--------------|
-| **Stacks / Queues** | Manage recently viewed events and upcoming event processing |
-| **SortedDictionary** | Store and retrieve events sorted by date |
-| **HashSet** | Store unique event categories |
-| **Recommendation Engine** | Suggests similar events based on category and date proximity |
-| **ErrorHandler Utility** | Gracefully handles user and system exceptions |
+# Data Structures — Service Request Status
+This part of the document explains **each implemented data structure** used in the *Service Request Status* feature, describing its **role**, **time/space complexity**, **concrete examples**, and **how it improves efficiency** for the application.
 
 ---
 
-## 🧠 How to Use (Report Issues)
+## 1. Binary Tree (BinaryNode<T>)
+**Role**
+- Fundamental node-based structure used as the building block for tree-based data structures (BST, AVL).
+- Stores a value and references to left/right child nodes.
 
-1. **Open the Application.**
-2. From the **Main Menu**, select **Report Issues**.
-3. **Capture** the location of the issue in the textbox.
-4. **Category Selection:** Choose the issue category from the dropdown (e.g., Sanitation, Roads, Utilities).
-5. **Description Box:** Provide detailed information about the issue in the RichTextBox.
-6. **Media Attachment:** Click the button to attach images or documents via OpenFileDialog.
-7. **Submit Button:** Click to submit the issue.
-8. **Engagement Feature:** Observe the dynamic feedback using a ProgressBar or encouraging messages.
-9. **Navigation Buttons:** Use the "Back to Main Menu" button to return to the main menu.
+**Time / Space Complexity**
+- Storage: **O(n)** nodes.
+- Basic traversal (pre/in/post-order): **O(n)** time.
 
-## 🧠 Local Events & Announcements
+**Concrete example**
+- A `BinaryNode<Issue>` stores an `Issue` object and links to left/right nodes. Used internally by BST/AVL implementations.
 
-1. From the **Main Menu**, select **Local Events & Announcements**.
-2. Use the **Category dropdown** and **Date pickers** to filter results.
-3. Click **Search** to refresh the event list.
-4. **Double-click** an event to see details and mark it as viewed.
-5. View suggested items in the **Recommendations** panel.
-6. Use **Back to Main Menu** to return and explore other options.
+**Contribution to efficiency**
+- Provides a simple, explicit representation of hierarchical relations and allows recursive tree algorithms (insert/traverse) to be implemented clearly and efficiently.
 
 ---
 
-## 🧰 Troubleshooting
+## 2. Binary Search Tree (BST) — `BinarySearchTree<T>`
+**Role**
+- Stores issues ordered by a key (e.g., `ReportedAt.Ticks`) to allow ordered traversal and efficient searches by the key.
+- Supports in-order traversal to return issues in chronological order.
 
-| Issue | Possible Cause | Solution |
-|--------|----------------|-----------|
-| App won’t start | Missing .NET Framework | Install .NET 6 SDK or higher |
-| Build fails | Corrupt dependencies | Rebuild project or run `dotnet restore` |
-| No events showing | Seed data not loaded | Check `SeedSampleData()` in `EventRepository.cs` |
-| UI not scaling | Display scaling too high | Set display scale to 100–125% in Windows settings |
+**Time / Space Complexity**
+- Average case: Insert/Search/Delete — **O(log n)**.
+- Worst case (unbalanced): **O(n)**.
+- Traversal: **O(n)**.
+- Space: **O(n)** for nodes.
+
+**Concrete example**
+- Insert issues as they are reported keyed by timestamp. An in-order traversal returns oldest → newest without sorting the whole dataset.
+
+**Contribution to efficiency**
+- Avoids repeated sorts when presenting chronological lists.
+- If data arrives nearly-random, average performance is good. However, for worst-case inputs (sorted insertions) performance can degrade; that's why a balanced tree (AVL) is also provided.
 
 ---
 
-## 👩🏽‍💻 Developer Notes
-- Built with **C# (.NET 6)** and **Windows Forms**.
-- Designed for **educational purposes** to demonstrate software architecture and data structures.
-- Easily extendable for **database integration (Azure SQL)** or **API communication** in future versions.
+## 3. AVL Tree (Self-balancing BST)
+**Role**
+- A balanced BST storing issues keyed by timestamp or another numeric key.
+- Guarantees balanced heights by performing rotations on insert/delete.
+
+**Time / Space Complexity**
+- Insert/Search/Delete: **O(log n)** guaranteed.
+- Traversal: **O(n)**.
+- Space: **O(n)**.
+
+**Concrete example**
+- When many issues are submitted in time-order (e.g., bursts during an event), AVL maintains balance, ensuring searches and insertions remain logarithmic.
+
+**Contribution to efficiency**
+- Predictable performance ensures the UI remains responsive when building or querying the tree (e.g., range queries on timestamps).
+- Particularly useful when the dataset size grows large — it prevents degeneration that would occur with a plain BST.
 
 ---
 
-## 📄 License
-This project is released for **academic and demonstration purposes only.**  
-All rights reserved © 2025 Municipal Issue Reporter Team.
+## 4. (Optional) Red‑Black Tree — explanation
+**Role**
+- Alternative self-balancing BST (not strictly required if AVL is present).
+- Offers O(log n) operations with different balancing heuristics (fewer rotations on average).
+
+**When to use**
+- In large-scale systems or library code where insertion/delete frequency versus read frequency suggests Red-Black's trade-offs are beneficial.
+
+**Contribution**
+- Provides practically efficient balancing for dynamic workloads and matches many standard library map/set implementations.
+
+---
+
+## 5. Min-Heap / Priority Queue
+**Role**
+- Organises issues by `Priority` to quickly retrieve the highest-priority tasks for triage and assignment.
+- Implemented as a binary heap backed by an array or `List<T>`.
+
+**Time / Space Complexity**
+- Insert: **O(log n)**
+- Peek (top priority): **O(1)**
+- Pop (remove top): **O(log n)**
+- Build (from n items): **O(n)** for bottom-up heapify, or **O(n log n)** for repeated insertions.
+- Space: **O(n)**.
+
+**Concrete example**
+- If the team needs the top 10 urgent requests, popping 10 times returns them in **O(k log n)** rather than sorting all requests (**O(n log n)**).
+
+**Contribution to efficiency**
+- Enables incremental/ongoing prioritisation: you can push new issues and immediately access the most urgent ones without re-sorting the entire list.
+- Ideal for real-time dashboards and task assignment screens.
+
+---
+
+## 6. Graph (Adjacency List)
+**Role**
+- Models relationships between issues (nodes): same category, same location, temporal proximity, or any custom relation.
+- Edges have weights that represent cost/distance/time (used by MST and traversal algorithms).
+
+**Time / Space Complexity**
+- Representation: **O(n + m)** where n = nodes, m = edges.
+- Building by pairwise comparisons (naive): **O(n²)** time.
+- BFS/DFS: **O(n + m)** time.
+- Prim’s MST (with suitable priority queue): **O(m log n)**.
+
+**Concrete example**
+- Connect issues from the same suburb or the same road to form a cluster. Edge weight might be the time difference or geographic distance.
+- A graph with 50 issues that cluster naturally into a few groups lets staff identify which ones can be handled in a single route.
+
+**Contribution to efficiency**
+- Allows grouping and cluster analysis: maintenance crews can handle connected issues in batches, reducing travel time and redundancy.
+- Supports graph algorithms (BFS/DFS) to explore related items and MST to compute minimal connection routes.
+
+**Implementation notes**
+- For small to moderate `n`, pairwise building is acceptable. For larger datasets, use indexing (hash by category/location) or spatial structures to avoid O(n²).
+
+---
+
+## 7. Breadth-First Search (BFS)
+**Role**
+- Traversal algorithm that visits nodes in layers (closest first).
+- Useful to find all issues reachable within k hops or to reveal clusters level-by-level.
+
+**Time / Space Complexity**
+- Time: **O(n + m)**
+- Space: **O(n)** for the visited queue.
+
+**Concrete example**
+- Start BFS from a reported burst of streetlight faults to discover all other faults in that neighborhood (first layer = directly connected; next layer = neighbors of neighbors).
+
+**Contribution to efficiency**
+- Efficiently finds groups of related requests and helps in batch-assignment decisions. BFS is optimal for finding shortest unweighted paths in number of edges.
+
+---
+
+## 8. Depth-First Search (DFS)
+**Role**
+- Traversal algorithm that explores as far as possible along each branch before backtracking.
+- Useful to identify connected components and deep dependency chains.
+
+**Time / Space Complexity**
+- Time: **O(n + m)**
+- Space: **O(n)** for recursion/stack in worst case.
+
+**Concrete example**
+- Trace a chain of dependent fixes (e.g., a power outage report connected to multiple downstream issues) to uncover deep, related problems.
+
+**Contribution to efficiency**
+- Helps identify isolated components and provides a quick way to label connected components for component-wise processing (e.g., compute MST per component).
+
+---
+
+## 9. Prim’s Minimum Spanning Tree (MST)
+**Role**
+- Computes a set of edges connecting all nodes in a connected component with minimum total weight.
+- Used to suggest minimal inspection/travel paths that connect related issues.
+
+**Time / Space Complexity**
+- With a binary heap: **O(m log n)**
+- Space: **O(n + m)**
+
+**Concrete example**
+- Given several pothole reports in a district, Prim’s MST yields the minimal combined path (by chosen weight metric) connecting all report locations. This helps plan an inspector route with minimal travel.
+
+**Contribution to efficiency**
+- Reduces operational cost by finding minimal interconnections among related requests, ideal for scheduling field crews.
+- When the graph is disconnected, compute MST per connected component to produce per-cluster minimal routes.
+
+**Important note**
+- MST requires a connected component. If the whole graph is disconnected, you can:
+  - compute MST for each connected component, or
+  - add fallback edges (less realistic) to force connectivity.
+
+---
+
+## 10. Putting them together — workflow & examples
+
+**Typical workflow in the Service Status feature**
+1. **Insert** new `Issue` → saved in repository.
+2. **Rebuild data structures**:
+   - BST/AVL keyed by timestamp for chronological queries.
+   - MinHeap keyed by priority for urgent queues.
+   - Graph built by relations (category/location/time) for clustering.
+3. **UI actions**:
+   - Show priority queue → pop top k from heap (`O(k log n)`).
+   - Track by ID → search repository or tree (`O(log n)` if using tree).
+   - Graph traversal → BFS/DFS to display related cluster (`O(n + m)`).
+   - Compute MST → Prim’s algorithm per component (`O(m log n)`).
+
+**Concrete combined example**
+- A user submits 200 issues over a week.
+- To show the current top 20 urgent items you use the MinHeap: **fast** retrieval without sorting all 200.
+- To display a chronological activity log you do an AVL in-order walk (guaranteed `O(n)` traversal after `O(log n)` inserts).
+- To plan field crew routes, you group issues by location using the Graph and compute MST per connected component to minimize travel.
+
+---
+
+## 11. Implementation tips & trade-offs
+
+- **BST vs AVL**: Use AVL when inserts are often ordered or data grows large to avoid worst-case `O(n)` behaviors.
+- **Graph building**: Avoid naive `O(n²)` pairwise checks for large datasets; instead, bucket by category/location or use spatial indices.
+- **Heap building**: Use bottom-up heapify if constructing from array for `O(n)` build time when you already have all elements.
+- **MST on disconnected graphs**: Compute per-component MSTs using BFS/DFS to find components first.
+
+---
